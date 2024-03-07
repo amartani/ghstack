@@ -1,0 +1,36 @@
+from ghstack.test_prelude import *
+
+init_test()
+
+write_file_and_add("bar", "baz")
+git("commit", "-m", "Commit 1\n\nThis is my first commit")
+
+(A,) = gh_submit("Initial")
+
+git("rm", "bar")
+git("commit", "--amend", "--allow-empty", "--no-edit")
+tick()
+
+# TODO: direct NYI
+if not is_direct():
+    gh_submit("Update")
+
+    assert_github_state(
+        """\
+        [O] #500 Commit 1 (gh/ezyang/1/head -> gh/ezyang/1/base)
+
+            Stack:
+            * __->__ #500
+
+            This is my first commit
+
+            * cfa2c39 Initial
+
+        Repository state:
+
+            * cfa2c39 (gh/ezyang/1/head)
+            |    Initial
+            * bd0a7b9 (gh/ezyang/1/base)
+                 Initial (base update)
+        """,
+    )
