@@ -1,0 +1,13 @@
+*.pyc
+.hypothesis
+*.bak
+*.egg-info
+dist
+build
+.mypy_cache
+.python-version
+.venv/
+.vscode
+tags
+*.log
+plan.txt

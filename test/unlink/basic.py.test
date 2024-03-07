@@ -1,0 +1,121 @@
+from ghstack.test_prelude import *
+
+init_test()
+
+commit("A")
+commit("B")
+gh_submit("Initial 1")
+
+# Unlink
+gh_unlink()
+
+gh_submit("Initial 2")
+
+if is_direct():
+    assert_github_state(
+        """\
+        [O] #500 Commit A (gh/ezyang/1/head -> master)
+
+            This is commit A
+
+            * b6f9660 Initial 1
+
+        [O] #501 Commit B (gh/ezyang/2/head -> gh/ezyang/1/head)
+
+            This is commit B
+
+            * 30b9f2a Initial 1
+
+        [O] #502 Commit A (gh/ezyang/3/head -> master)
+
+            This is commit A
+
+
+
+            * 2193fd2 Initial 2
+
+        [O] #503 Commit B (gh/ezyang/4/head -> gh/ezyang/3/head)
+
+            This is commit B
+
+
+
+            * ce2fa9b Initial 2
+
+        Repository state:
+
+            * 30b9f2a (gh/ezyang/2/next, gh/ezyang/2/head)
+            |    Initial 1
+            * b6f9660 (gh/ezyang/1/next, gh/ezyang/1/head)
+            |    Initial 1
+            | * ce2fa9b (gh/ezyang/4/next, gh/ezyang/4/head)
+            | |    Initial 2
+            | * 2193fd2 (gh/ezyang/3/next, gh/ezyang/3/head)
+            |/     Initial 2
+            * dc8bfe4 (HEAD -> master)
+                 Initial commit
+        """
+    )
+else:
+    assert_github_state(
+        """\
+        [O] #500 Commit A (gh/ezyang/1/head -> gh/ezyang/1/base)
+
+            Stack:
+            * #501
+            * __->__ #500
+
+            This is commit A
+
+            * 55ee788 Initial 1
+
+        [O] #501 Commit B (gh/ezyang/2/head -> gh/ezyang/2/base)
+
+            Stack:
+            * __->__ #501
+            * #500
+
+            This is commit B
+
+            * a3419f5 Initial 1
+
+        [O] #502 Commit A (gh/ezyang/3/head -> gh/ezyang/3/base)
+
+            Stack:
+            * #503
+            * __->__ #502
+
+            This is commit A
+
+            * ab3db60 Initial 2
+
+        [O] #503 Commit B (gh/ezyang/4/head -> gh/ezyang/4/base)
+
+            Stack:
+            * __->__ #503
+            * #502
+
+            This is commit B
+
+            * f30ebce Initial 2
+
+        Repository state:
+
+            * 55ee788 (gh/ezyang/1/head)
+            |    Initial 1
+            * 5434862 (gh/ezyang/1/base)
+                 Initial 1 (base update)
+            * a3419f5 (gh/ezyang/2/head)
+            |    Initial 1
+            * c66825d (gh/ezyang/2/base)
+                 Initial 1 (base update)
+            * ab3db60 (gh/ezyang/3/head)
+            |    Initial 2
+            * e957508 (gh/ezyang/3/base)
+                 Initial 2 (base update)
+            * f30ebce (gh/ezyang/4/head)
+            |    Initial 2
+            * 94673ed (gh/ezyang/4/base)
+                 Initial 2 (base update)
+        """
+    )
